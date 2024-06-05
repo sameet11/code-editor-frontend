@@ -13,3 +13,8 @@ export const FileAtom = atom<FileSchema>({
         language: ""
     }
 })
+
+export const SaveFileAtom=atom<boolean>({
+    key:"saveFile",
+    default:false
+})

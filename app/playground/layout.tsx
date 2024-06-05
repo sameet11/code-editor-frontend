@@ -14,7 +14,7 @@ const Playground = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div>
           <p>My Playground</p>
-        </div>
+  </div>
       </div>
       <div className="flex h-full">
         <div className=" h-full p-5 text-white hover:text-slate-400 gap-5 border-r-2 border-slate-800">

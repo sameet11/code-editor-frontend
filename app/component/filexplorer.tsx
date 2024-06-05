@@ -36,7 +36,6 @@ const FileExplorer: FC<FileExplorerSchema> = ({
         return;
       }
       const response = await getFolder(currentpath, token);
-      console.log(response);
       if (response.error || !response.data) {
         return toast.error("something went wrong");
       }

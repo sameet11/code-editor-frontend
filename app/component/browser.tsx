@@ -3,19 +3,20 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRecoilValue } from "recoil";
 import { PortAtom } from "../store/port";
+import { SaveFileAtom } from "../store/files";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { TfiReload } from "react-icons/tfi";
 import { GrShare } from "react-icons/gr";
 import { IoMdLock } from "react-icons/io";
-import { FileAtom } from "../store/files";
 import BrowserLoader from "./browserloader";
+
 
 const Browser = () => {
   const [url, setUrl] = useState("");
   const port = useRecoilValue(PortAtom);
-  const filedata = useRecoilValue(FileAtom);
   const [iframeKey, setIframeKey] = useState(0);
+  const savefile=useRecoilValue(SaveFileAtom);
   const [reload, setreload] = useState<boolean>(true);
   const router = useRouter();
   useEffect(() => {
@@ -56,7 +57,7 @@ const Browser = () => {
       setIframeKey((prevKey) => prevKey + 1);
     };
     reloadIframe();
-  }, [filedata, reload]);
+  }, [savefile,reload]);
   return (
     <>
       {url ? (
@@ -86,7 +87,7 @@ const Browser = () => {
             key={iframeKey}
             src={url}
             title="Embedded webpage"
-            className="w-full h-full"
+            className="w-full h-full bg-white"
           />
         </div>
       ) : (

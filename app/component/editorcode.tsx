@@ -5,19 +5,20 @@ import { useRouter } from "next/navigation";
 import { useSetRecoilState, useRecoilState } from "recoil";
 import { FileAtom } from "../store/files";
 import { FolderAtom } from "../store/folder";
+import { SaveFileAtom } from "../store/files";
 import EditorHeader from "./editorheader";
 import addContent from "../utils/addcontent";
 import { useState, useEffect } from "react";
 import SplitPane, { Pane } from "split-pane-react";
-import Terminal from "./terminal";
 import "split-pane-react/esm/themes/default.css";
+import TerminalComponent from "./terminal";
 
 const EditorCode = () => {
-  const [sizes, setSizes] = useState([60, 40]);
-  const [savefile, setsavefile] = useState<boolean>(false);
+  const [sizes, setSizes] = useState([69, 31]);
+  const [savefile, setsavefile] = useRecoilState(SaveFileAtom);
   const [Filedata, setFiledata] = useRecoilState(FileAtom);
   const setFolder = useSetRecoilState(FolderAtom);
-  const router = useRouter();
+  const router=useRouter();
   useEffect(() => {
     const updatefile = async () => {
       const token = localStorage.getItem("token");
@@ -91,7 +92,7 @@ const EditorCode = () => {
           ></div>
         )}
       >
-        <Pane>
+        <div>
           <EditorHeader savefile={savefile} setsavefile={setsavefile} />
           <Editor
             height="90vh"
@@ -101,11 +102,9 @@ const EditorCode = () => {
             value={Filedata.content}
             onChange={(value) => handlecontentChange(value)}
           />
-        </Pane>
+        </div>
         <Pane>
-          <div className="border-r-2 border-slate-800">
-            <Terminal/>
-          </div>
+          <TerminalComponent/>
         </Pane>
       </SplitPane>
     </>

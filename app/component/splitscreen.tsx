@@ -55,7 +55,6 @@ const Splitscreen: FC<SplitScreenProps> = ({ id }) => {
           return;
         }
         setcontainerId(containerResponse.data.containerId);
-        console.log(containerResponse.data.port[0]);
         setport(containerResponse.data.port[0]);
       }
       updateAllState();
