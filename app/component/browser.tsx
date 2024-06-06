@@ -50,7 +50,13 @@ const Browser = () => {
         console.error("Error fetching URL:", error);
       }
     };
+   const timeoutId= setTimeout(()=>{
       fetchData();
+    },2000)
+
+    return ()=>{
+      clearTimeout(timeoutId);
+    }
   }, [port]);
   useEffect(() => {
     const reloadIframe = () => {
