@@ -8,17 +8,36 @@ import { FolderAtom } from "../store/folder";
 import { SaveFileAtom } from "../store/files";
 import EditorHeader from "./editorheader";
 import addContent from "../utils/addcontent";
-import { useState, useEffect } from "react";
-import SplitPane, { Pane } from "split-pane-react";
-import "split-pane-react/esm/themes/default.css";
-import TerminalComponent from "./terminal";
-
+import { useEffect } from "react";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
+import  {  useRef } from "react";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
+import io, { Socket } from "socket.io-client";
+import { useRecoilValue } from "recoil";
+import { ContainerAtom } from "../store/container";
+import { UpdateFolderAtom } from "../store/folder";
+const OPTIONS_TERM = {
+  useStyle: true,
+  screenKeys: true,
+  cursorBlink: true,
+};
 const EditorCode = () => {
-  const [sizes, setSizes] = useState([69, 31]);
   const [savefile, setsavefile] = useRecoilState(SaveFileAtom);
   const [Filedata, setFiledata] = useRecoilState(FileAtom);
   const setFolder = useSetRecoilState(FolderAtom);
   const router=useRouter();
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const containerId = useRecoilValue(ContainerAtom);
+  const [updateFolder, setUpdateFolder] = useRecoilState(UpdateFolderAtom);
+  let socket: Socket | null = null;
+  let term: Terminal | null = null;
+  let fitAddon: FitAddon | null = null;
   useEffect(() => {
     const updatefile = async () => {
       const token = localStorage.getItem("token");
@@ -66,6 +85,54 @@ const EditorCode = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [Filedata]);
+  useEffect(() => {
+    if (!containerId) {
+      return;
+    }
+
+    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "ws://localhost:3001", {
+      query: {
+        containerId: containerId,
+      },
+    });
+
+    if (terminalRef.current) {
+      term = new Terminal(OPTIONS_TERM);
+      fitAddon = new FitAddon();
+      term.loadAddon(fitAddon);
+      term.open(terminalRef.current);
+      term.onKey((e) => {
+        const command = e.key;
+        socket?.emit("command", JSON.stringify({ command }));
+        if (e.domEvent.key === "Enter") {
+          setUpdateFolder((prev) => !prev);
+        }
+      });
+      term.onResize(()=>{
+        fitAddon?.fit()
+      })
+      socket.on("commandoutput", (output: string) => {
+        if (term) {
+          term.write(output);
+          fitAddon?.fit()
+        }
+      });
+      socket.on("commandstatus", (output: string) => {
+        if (output === "closed") {
+          toast.error("Session expired");
+          router.push("/dashboard");
+        }
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+      if (term) {
+        term.dispose();
+      }
+    };
+  }, [containerId]);
 
   const handlecontentChange = async (content: string | undefined) => {
     if (typeof content !== "string") {
@@ -77,22 +144,8 @@ const EditorCode = () => {
 
   return (
     <>
-      <SplitPane
-        split="horizontal"
-        sizes={sizes}
-        onChange={setSizes}
-        allowResize
-        resizerSize={4}
-        sashRender={(index, active) => (
-          <div
-            key={index}
-            className={`bg-white text-white w-2 ${
-              active ? "opacity-100" : "opacity-0"
-            } transition-opacity duration-200`}
-          ></div>
-        )}
-      >
-        <div>
+      <ResizablePanelGroup direction="vertical">
+        <ResizablePanel defaultSize={70}>
           <EditorHeader savefile={savefile} setsavefile={setsavefile} />
           <Editor
             height="90vh"
@@ -102,11 +155,14 @@ const EditorCode = () => {
             value={Filedata.content}
             onChange={(value) => handlecontentChange(value)}
           />
-        </div>
-        <Pane>
-          <TerminalComponent/>
-        </Pane>
-      </SplitPane>
+        </ResizablePanel>
+        <ResizableHandle/>
+        <ResizablePanel defaultSize={30} onResize={()=>{
+          fitAddon?.fit()
+        }}>
+        <div ref={terminalRef} style={{ width: '100%', height: '100%' }}></div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </>
   );
 };
