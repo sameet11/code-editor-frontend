@@ -108,11 +108,15 @@ const EditorCode = () => {
       fitAddon = new FitAddon();
       term.loadAddon(fitAddon);
       term.open(terminalRef.current);
+      let timeout:ReturnType<typeof setTimeout>;
       term.onKey((e) => {
         const command = e.key;
         socket?.emit("command", JSON.stringify({ command }));
+          clearTimeout(timeout);
         if (e.domEvent.key === "Enter") {
-          setUpdateFolder((prev) => !prev);
+          timeout=setTimeout(() => {
+            setUpdateFolder((prev) => !prev);
+          }, 500);
         }
       });
       term.onResize(()=>{
