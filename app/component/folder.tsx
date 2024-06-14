@@ -49,6 +49,7 @@ const Folder: FC<FolderProps> = ({
     }
     const path = currentpath + "/" + folderinput;
     const rootpath=currentpath.split('/')[0]+"/";
+    try{
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/folder/create?path=${path}&rootpath=${rootpath}`,
       {},
@@ -73,6 +74,11 @@ const Folder: FC<FolderProps> = ({
     });
     setfolderinput("");
     setcreatefolder(false);
+  }
+  catch(error){
+    toast.error("Something went wrong");
+    router.push('/');
+  }
   };
   const handleCreateFile = async () => {
     const token = localStorage.getItem("token");
@@ -82,6 +88,7 @@ const Folder: FC<FolderProps> = ({
     }
     const path = currentpath + "/" + fileinput;
     const rootpath=currentpath.split('/')[0]+"/";
+    try{
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/folder/createfile?path=${path}&rootpath=${rootpath}`,
       {},
@@ -106,6 +113,11 @@ const Folder: FC<FolderProps> = ({
     });
     setfileinput("");
     setcreatefile(false);
+  }
+  catch(error){
+    toast.error("Something went wrong");
+    router.push('/');
+  }
   };
   return (
     <>

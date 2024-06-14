@@ -38,6 +38,7 @@ const Playground: FC<PlaygroundProps> = ({
       newtitle = title.toLowerCase();
     }
     setLoading(true);
+    try{
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/env/create/${newtitle}`,
       {
@@ -62,6 +63,11 @@ const Playground: FC<PlaygroundProps> = ({
       setcontainer(response.data.data.containerid);
       router.push(`/playground/${response.data.data.path}`);
     }
+  }
+  catch(error){
+    toast.error("something went wrong");
+    router.push('/');
+  }
   };
 
   return (

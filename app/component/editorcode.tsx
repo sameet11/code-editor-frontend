@@ -47,6 +47,7 @@ const EditorCode = () => {
       setsavefile(false);
       const pathname = Filedata.path + "/" + Filedata.name;
       const rootpath=pathname.split('/')[0]+'/';
+      try{
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/folder/updatefile?path=${pathname}&rootpath=${rootpath}`,
         {
@@ -70,7 +71,13 @@ const EditorCode = () => {
       setFolder((prevdata) => {
         return addContent(prevdata, pathname, Filedata.content);
       });
+    }
+    catch(error){
+      toast.error("Somethin went wrong");
+      router.push('/');
     };
+
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "s") {

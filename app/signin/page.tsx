@@ -14,6 +14,7 @@ const Signin = () => {
   const [password, setpassword] = useState<string>("");
   const router = useRouter();
   const handleClick = async () => {
+    try{
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/auth/signin`,
       {
@@ -31,6 +32,10 @@ const Signin = () => {
     } else {
       localStorage.setItem("token", response.data.token);
       router.push("/dashboard");
+    }}
+    catch(error){
+      toast.error("something went wrong");
+      router.push('/');
     }
   };
   return (

@@ -48,11 +48,12 @@ const Browser = () => {
         setUrl(response.data.data);
       } catch (error) {
         console.error("Error fetching URL:", error);
+        router.push('/');
       }
     };
    const timeoutId= setTimeout(()=>{
       fetchData();
-    },2000)
+    },3000)
 
     return ()=>{
       clearTimeout(timeoutId);

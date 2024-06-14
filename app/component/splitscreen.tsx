@@ -44,6 +44,7 @@ const Splitscreen: FC<SplitScreenProps> = ({ id }) => {
           Folder:response.data,
         });
         const rootpath=id+'/'
+        try{
         const containerResponse=await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/env/getcontainer?rootpath=${rootpath}`,{
           headers: {
             authorization: `Bearer ${token}`,
@@ -57,6 +58,11 @@ const Splitscreen: FC<SplitScreenProps> = ({ id }) => {
         setcontainerId(containerResponse.data.containerId);
         setport(containerResponse.data.port[0]);
       }
+      catch(error){
+        toast.error("somethin went wrong")
+        router.push('/');
+      }}
+
       updateAllState();
   },[])
   useEffect(()=>{
